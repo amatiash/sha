@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hi)))</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.10.0/js/md5.min.js"></script>
+	<style type="text/css">
+		body {
+			background: black;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+
+	<script type="text/javascript">
+		const encrypted = 'cb9e933d2e9191edb66d7ab7c2aa1a21a3790d89302ceca02c689eefd4290140yqa43ZxRxzM/wiSOTSerFYdm/rQDnXFNVxexj+4F2x4=';
+		const keySize = 256;
+		const ivSize = 128;
+		const iterations = 100;
+
+		function encrypt (msg, pass) {
+		  var salt = CryptoJS.lib.WordArray.random(128/8);
+		  
+		  var key = CryptoJS.PBKDF2(pass, salt, {
+		      keySize: keySize/32,
+		      iterations: iterations
+		    });
+
+		  var iv = CryptoJS.lib.WordArray.random(128/8);
+		  
+		  var encrypted = CryptoJS.AES.encrypt(msg, key, { 
+		    iv: iv, 
+		    padding: CryptoJS.pad.Pkcs7,
+		    mode: CryptoJS.mode.CBC
+		    
+		  });
+		  
+		  // salt, iv will be hex 32 in length
+		  // append them to the ciphertext for use  in decryption
+		  var transitmessage = salt.toString()+ iv.toString() + encrypted.toString();
+		  return transitmessage;
+		}
+
+		function decrypt (transitmessage, pass) {
+		  var salt = CryptoJS.enc.Hex.parse(transitmessage.substr(0, 32));
+		  var iv = CryptoJS.enc.Hex.parse(transitmessage.substr(32, 32))
+		  var encrypted = transitmessage.substring(64);
+		  
+		  var key = CryptoJS.PBKDF2(pass, salt, {
+		      keySize: keySize/32,
+		      iterations: iterations
+		    });
+
+		  var decrypted = CryptoJS.AES.decrypt(encrypted, key, { 
+		    iv: iv, 
+		    padding: CryptoJS.pad.Pkcs7,
+		    mode: CryptoJS.mode.CBC
+		    
+		  })
+		  return decrypted;
+		}
+
+		function ask() {
+			let answer = prompt('The Answer:');
+
+			if(md5(answer) === "a1d0c6e83f027327d8461063f4ac58a6"){
+				let decrypted = decrypt(encrypted, answer);
+				alert(decrypted.toString(CryptoJS.enc.Utf8));
+				document.body.insertAdjacentHTML('beforeend', '<video class="preview" preload="auto" autoplay="autoplay" muted="muted" loop="loop" webkit-playsinline="" style="width: 100vw"><source src="https://g.redditmedia.com/_E8_2DoxPyKekV83obRIinvtaega4mn_CcUnO6FshpA.gif?w=719&amp;fm=mp4&amp;mp4-fragmented=false&amp;s=485cd6b9c3a5eb89a0dee36d2fdc3a98" type="video/mp4"></video>');
+
+			} else {
+				let tryAgain = confirm("You can find the answer, just read carefully. Try again?");
+
+				if(tryAgain)
+					ask();
+				else{
+					document.location = 'https://www.youtube.com/embed/megGOXIJBEE?rel=0&controls=0&showinfo=0&autoplay=1';
+				}
+			}
+		}
+
+		ask();
+
+	</script>
+
+</body>
+</html>
